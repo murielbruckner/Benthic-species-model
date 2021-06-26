@@ -14,7 +14,7 @@ close all
 clc
 
 % User - Define directory
-directory_head  = 'C:\Bioturbation\CODE HULL\'; % folder with modules and initial files
+directory_head  = ''; % folder with modules and initial files
 ID1             = 'estuary';     % name of the simulation file (mdf-file)
 name_model      = 'Delft3D model'; % folder of scenario run
 directory       = [directory_head, name_model,'\']; % main directory used in computations
@@ -31,14 +31,15 @@ addpath([directory_head,'Matlab functions']);
 % User - Define parameters of the hydro-morphodynamic computation
 mor         = 1;    % 1= include morphology, 0 = exclude morphology 
 morf        = 60;   % give manual morfac in case mor = 0
-fl_dr       = 0.05;  % Boundary for flooding/drying threshold used in the computations [m]
+fl_dr       = 0.05; % Boundary for flooding/drying threshold used in the computations [m]
 Restart     = 0;    % =1 if restart from a trim-file when start time is not 0
 phyto       = 1;    % to turn on microphytobenthos computations phyto=1
 bioturbation = 1;   % to turn on macrozoobenthic computations bioturbation=1
+grazing_comp = 2;   % flag for grazing computations: 1: mean, 2: linear
 
 % User - Define time-scales
 t_eco_year  = 12; % number ecological time-steps per year
-years       = 50; % number of morphological years of entire simulation
+years       = 200; % number of morphological years of entire simulation
 
 %% run dynamic benthic species model
 Benthos_model

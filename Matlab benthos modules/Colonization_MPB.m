@@ -52,30 +52,37 @@ if ets >=data_phyto{1,3} && ets <=data_phyto{1,4}
     
     % calculation of MPB distribution as absence/presence
     phyto_pres = find(inundation>habitat_in1 & inundation<habitat_in2 & mud_fract>mud_th); % find suitable habitat for MPB
-    phyto_mat = Taucrit; % load taucrit distribution
-    phyto_mat(phyto_pres) = tau_bio; % add biotic value in colonized cells
-    PHYTO(phyto_pres) = 1; % save presence in matrix for postprocessing
+    phyto_mat = Taucrit;                % load taucrit distribution
+    phyto_mat(phyto_pres) = tau_bio;    % add biotic value in colonized cells
+    PHYTO(phyto_pres) = 1;              % save presence in matrix for postprocessing
     
     % grazing computations
     if bioturbation==1
         
         % loop over bioturbators
-        for i=1:nb
-            graze=GRAZE{i};
+        for nb=1:no_bio
+            graze=GRAZE{nb};
             if graze==1
-                graze_mat=tau_sed-cell2mat(type{i}.mort(5)); % substract sed value to get difference between abiotc-biotic case
-                cells = find(graze_mat<tau_sed & phyto_mat>tau_sed);
-                phyto_mat(cells)=phyto_mat(cells)-graze_mat(cells); %(reduce the value by phyto by the bioturbation of grazer)
+
+                if grazing_comp ==1 % mean tau
+                    graze_mat=cell2mat(type{nb}.mort(5));                   % find tau crit of bioturbator
+                    cells = find(graze_mat<tau_sed & phyto_mat>tau_sed);    %  find the cells that contain both MPB and bioturbator 
+                    phyto_mat(cells)=(phyto_mat(cells)+graze_mat(cells))/2; % mean value of MPB by the bioturbation of grazer                    
+                elseif grazing_comp == 2 % linear computation of tau
+                    graze_mat=tau_sed-cell2mat(type{nb}.mort(5));        % substract sed value to get difference between abiotc-biotic case
+                    cells = find(graze_mat>0 & phyto_mat>tau_sed);      % find the cells that contain both MPB and bioturbator                    
+                    bioturb_fract = cell2mat(type{nb}.mort(4));          % extract bioturbator fractions
+                    delta_tauMPB = (tau_bio-tau_sed)*(PHYTO-bioturb_fract); % variation in tau induced by the remaining fraction of MPB
+                    phyto_mat(cells) = tau_sed + delta_tauMPB(cells) ;  % final values after grazing
+                end
+                
+                % save the remaining MPB fraction
+                rel_mat = PHYTO-cell2mat(type{nb}.mort(4));  % new MPB fractions (always >0)
+                PHYTO(cells) = rel_mat(cells);               % add grazed MPB fractions
+                
             end
         end
-        
-        Taucrit=phyto_mat; % new value for new colonization
-        
-        % save the relative phyto density
-        rel_mat = cell2mat(type{i}.mort(5))/tau_sed;
-        PHYTO(cells) = rel_mat(cells);
-    else
-        Taucrit(phyto_pres)=tau_bio; % new value for new colonization
+
     end
     
     % save phyto distribution from ETS

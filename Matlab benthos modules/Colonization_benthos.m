@@ -224,6 +224,17 @@ for nb = 1:no_bio
             % replace empty cells with bioturbator 2
             Tau_final(competition) = tau(competition); % replace empty cells wtih bioturbator 2
             Ero_final(competition) = ero(competition);
+            
+            % reset CV distribution with new distribution for grazing in
+            % MPB code
+            dist1 = cell2mat(type{1}.mort(4));      % find AM presence
+            dist2 = cell2mat(type{no_bio}.mort(4)); % find CV presence
+            dist2(dist2>0 & dist1>0) = 0;           % remove recessive fractions
+            type{no_bio}.mort(4) = {dist2};         % overwrite new fractions   
+            dist1 = cell2mat(type{1}.mort(5));      % AM tau
+            dist2 = cell2mat(type{no_bio}.mort(5)); % CV tau
+            dist2(dist2~=tau_sed & dist1~=tau_sed) = tau_sed; % remove recessive fractions
+            type{no_bio}.mort(5) = {dist2};         % overwrite new fractions
 
         end
         

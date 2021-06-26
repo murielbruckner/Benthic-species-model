@@ -42,7 +42,7 @@ ini_work
        
        
        %% Run Delft3D and save output
-        run_line =  [directory, 'work\', 'run_flow2d3d_parallel.bat'];
+        run_line =  [directory, 'work\', 'Startrun.bat'];
         cd([directory, 'work']);
         system(run_line);
 
